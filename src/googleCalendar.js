@@ -22,10 +22,26 @@ export async function createCalendarEvent(task, accessToken) {
   let end
   if (dueDate && dueTime) {
     // Create a timed event (default duration 1 hour)
-    const startDt = new Date(`${dueDate}T${dueTime}:00`)
-    const endDt = new Date(startDt.getTime() + 60 * 60000)
-    start = { dateTime: startDt.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }
-    end = { dateTime: endDt.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }
+    const timeZone = 'Asia/Karachi'
+
+const startDateTime = `${dueDate}T${dueTime}:00`
+
+const [hours, minutes] = dueTime.split(':').map(Number)
+const endObj = new Date(`${dueDate}T${dueTime}:00`)
+endObj.setHours(hours + 1, minutes)
+
+const endDate = endObj.toISOString().slice(0, 10)
+const endTime = String(endObj.getHours()).padStart(2, '0') + ':' + String(endObj.getMinutes()).padStart(2, '0')
+
+start = {
+  dateTime: startDateTime,
+  timeZone,
+}
+
+end = {
+  dateTime: `${endDate}T${endTime}:00`,
+  timeZone,
+}
   } else {
    if (!dueDate) throw new Error('Due date is required for calendar event')
    start = { date: dueDate }
@@ -112,10 +128,26 @@ export async function updateCalendarEvent(eventId, task, accessToken) {
   let start
   let end
   if (dueDate && dueTime) {
-    const startDt = new Date(`${dueDate}T${dueTime}:00`)
-    const endDt = new Date(startDt.getTime() + 60 * 60000)
-    start = { dateTime: startDt.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }
-    end = { dateTime: endDt.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }
+    const timeZone = 'Asia/Karachi'
+
+const startDateTime = `${dueDate}T${dueTime}:00`
+
+const [hours, minutes] = dueTime.split(':').map(Number)
+const endObj = new Date(`${dueDate}T${dueTime}:00`)
+endObj.setHours(hours + 1, minutes)
+
+const endDate = endObj.toISOString().slice(0, 10)
+const endTime = String(endObj.getHours()).padStart(2, '0') + ':' + String(endObj.getMinutes()).padStart(2, '0')
+
+start = {
+  dateTime: startDateTime,
+  timeZone,
+}
+
+end = {
+  dateTime: `${endDate}T${endTime}:00`,
+  timeZone,
+}
   } else {
   if (!dueDate) throw new Error('Due date is required for calendar event')
 
@@ -223,7 +255,13 @@ export async function fetchBloomTaskEvents(accessToken) {
 }
 
 function getNextDate(dateStr) {
-  const date = new Date(dateStr)
+  const [year, month, day] = dateStr.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
   date.setDate(date.getDate() + 1)
-  return date.toISOString().slice(0, 10)
+
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+
+  return `${y}-${m}-${d}`
 }
